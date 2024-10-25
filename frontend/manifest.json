@@ -8,5 +8,19 @@
 			"js": ["main.js"]
 		}
 	],
-	"web_accessible_resources": ["pp.jpg"]
+	"permissions": ["activeTab"],
+
+	"web_accessible_resources": ["test.jpg"],
+	"icons": {
+		"48": "icons/icon48.png",
+		"128": "icons/icon128.png"
+	},
+	"browser_action": {
+		"default_icon": {
+			"48": "icons/icon48.png",
+			"128": "icons/icon128.png"
+		},
+		"default_title": "Lazaro AI",
+		"default_popup": "index.html"
+	}
 }
