@@ -1,21 +1,23 @@
 {
-	"manifest_version": 2,
+	"manifest_version": 3,
 	"version": "1.0",
 	"name": "Lazaro AI",
+	"permissions": ["tabs", "activeTab"],
 	"content_scripts": [
 		{
 			"matches": ["<all_urls>"],
-			"js": ["main.js"]
+			"js": ["content.js"]
 		}
 	],
-	"permissions": ["activeTab"],
-
-	"web_accessible_resources": ["test.jpg"],
+	"host_permissions": ["<all_urls>"],
+	"background": {
+		"service_worker": "service-worker.js"
+	},
 	"icons": {
 		"48": "icons/icon48.png",
 		"128": "icons/icon128.png"
 	},
-	"browser_action": {
+	"action": {
 		"default_icon": {
 			"48": "icons/icon48.png",
 			"128": "icons/icon128.png"
