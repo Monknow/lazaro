@@ -49,6 +49,7 @@ async function sendToServer(image) {
 	formData.append("file", image);
 
 	const response = await fetch("http://127.0.0.1:8000/upload/", {
+		mode: "no-cors",
 		method: "POST",
 		body: formData,
 	});
