@@ -1,0 +1,105 @@
+---
+import {Image} from "astro:assets";
+
+import alerts from "../assets/images/alerts.png";
+import protection from "../assets/images/protection.png";
+import privacy from "../assets/images/privacy.png";
+---
+
+<section class="why-us">
+	<h2>Why Choose Lazaro?</h2>
+	<ul class="features">
+		<li>
+			<header>
+				<h3>Simple Alerts</h3>
+				<p>Easily recognizable warnings that tell you if a website is safe or not.</p>
+			</header>
+			<Image src={alerts} alt="Alert Icon" />
+		</li>
+		<li>
+			<header>
+				<h3>Automatic Protection</h3>
+				<p>Lazaro works quietly in the background to alert you of risks.</p>
+			</header>
+			<Image src={protection} alt="Protection Icon" />
+		</li>
+		<li>
+			<header>
+				<h3>Privacy First</h3>
+				<p>We respect your privacy and never track your personal data.</p>
+			</header>
+			<Image src={privacy} alt="Privacy Icon" />
+		</li>
+	</ul>
+</section>
+
+<style>
+	@keyframes pop-up-features {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+
+	.why-us {
+		display: flex;
+		flex-flow: column;
+		gap: var(--spacing);
+
+		ul {
+			display: flex;
+			flex-flow: row;
+			justify-content: space-between;
+			gap: var(--spacing);
+
+			list-style: none;
+		}
+
+		li {
+			flex: 0 1 28%;
+
+			display: flex;
+			flex-flow: column;
+			gap: var(--spacing);
+
+			&:nth-child(even) {
+				flex-flow: column-reverse;
+			}
+		}
+
+		img {
+			height: auto;
+			width: 100%;
+			aspect-ratio: 1;
+
+			border-radius: 20px;
+
+			animation: pop-up-features linear;
+			animation-timeline: view(block);
+			animation-fill-mode: forwards;
+			animation-range: cover 0% contain 50%;
+		}
+	}
+
+	@media (width < 700px) {
+		.why-us {
+			ul {
+				flex-flow: column;
+			}
+
+			li {
+				flex-flow: row;
+				&:nth-child(even) {
+					flex-flow: row-reverse;
+				}
+			}
+
+			img {
+				width: 80px;
+				height: 80px;
+			}
+		}
+	}
+</style>

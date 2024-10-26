@@ -1,0 +1,8 @@
+weights/icon_caption_blip2
+weights/icon_caption_florence
+.gradio
+.idea
+.env
+__pycache__
+cuda*.exe
+cuda_12.6.2_560.94_windows.exe

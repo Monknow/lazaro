@@ -1,0 +1,153 @@
+from utils import get_som_labeled_img, check_ocr_box, get_caption_model_processor, get_yolo_model
+from fastapi import FastAPI, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from PIL import Image
+from openai import OpenAI, AsyncOpenAI
+from  ultralytics import YOLO
+import io
+import sys
+import os
+import torch
+import base64
+import matplotlib.pyplot as plt
+import json
+
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+
+OpenAI.api_key = OPENAI_API_KEY
+
+app = FastAPI()
+client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Adjust this to specify allowed origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.post("/upload/")
+
+async def upload(file: UploadFile = File(...)):
+    # Read the image file
+    image_data = await file.read()
+    
+    # Process the image using Pillow
+    try:
+        image = Image.open(io.BytesIO(image_data))
+
+        img_path = "test.png"
+
+        image.save(img_path)
+
+        print("Parsing")
+
+        content = await screen_parse(img_path)
+
+        print("Parsed Successfully")
+
+        print(content)
+
+        # return JSONResponse(content=content, status_code=200)
+
+        # ChatGPT prompting
+
+        response = await client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You are a helpful assistant, skilled in explaining "
+                    "complex concepts in simple terms."
+                ),
+            },
+            {
+                "role": "user",
+                "content": f"{content} con esta lista hazme un analisis en porcentaje de que tan sospechosa es la pagina",
+            },
+        ],
+        stream=True,
+        )
+
+        '''aqui recibe una lista'''
+
+        try:
+            with open('Alerta.json', 'r') as f:
+                Alerta = json.load(f)
+        except FileNotFoundError:
+            Alerta = {}
+
+        lista = [0, 0, 0, 0, 0, 0, 0]
+        listaRazones = ["Tu conección al sitio no está encriptado", "Los enlaces dentro del sitio son inseguros", "Se muestra tu información personal", "Tu navegador te está dando alertas de seguridad", "El metodo de pago no esta encriptado", "Tu conección al internet no es privado", "La información que muestras actualmente no es privada"]
+        sospechatotal = 0
+
+        for i in range(len(lista)):
+            if lista[i] == 0:
+                sospechatotal+=1
+
+        if sospechatotal > 5:
+            Alerta['Gravedad'] = (f"Alerta de Seguridad; Actividad sospechosa\n")
+            temp = []
+            for i in range(sospechatotal):
+                if lista[i] == 0:
+                    temp.append(f"Razon {i+1}: {listaRazones[i]}\n")
+            Alerta['RazonAlerta'] = temp
+
+        elif sospechatotal < 6 and sospechatotal > 2:
+            Alerta['Gravedad'] = (f"Alerta de Seguridad; Actividad sospechosa\n")
+            temp = []
+            for i in range(sospechatotal):
+                if lista[i] == 0:
+                    temp.append(f"Razon {i+1}: {listaRazones[i]}\n")
+            Alerta['RazonAlerta'] = temp
+        elif sospechatotal < 3:
+            Alerta['Gravedad'] = (f"Actividad segura\n")
+
+        with open('Alerta.json', 'w') as f:
+            json.dump(Alerta, f, indent=2)
+        
+        #Ya no le entendi a los json
+
+        print(response)
+
+        return JSONResponse(content=response, status_code=200)
+    
+    except Exception as e:
+        print(e)
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+    
+
+async def screen_parse(img_path):
+
+    device = 'cuda'
+    torch.cuda.empty_cache()
+    som_model = get_yolo_model(model_path='Omniparser/model/icon_detect/best.pt')
+    som_model.to(device)
+
+    caption_model_processor = get_caption_model_processor(model_name="florence2", model_name_or_path="Omniparser/model/icon_caption_florence", device=device)
+    som_model.device, type(som_model) #, type(dino_model['model']), isinstance(som_model, YOLO) dino_model['model'].device, 
+
+    cnt = 0
+    image_path = img_path
+    draw_bbox_config = {
+        'text_scale': 0.8,
+        'text_thickness': 2,
+        'text_padding': 3,
+        'thickness': 3,
+    }
+    BOX_TRESHOLD = 0.03
+
+    image = Image.open(image_path)
+    image_rgb = image.convert('RGB')
+
+    ocr_bbox_rslt, is_goal_filtered = check_ocr_box(image_path, display_img = False, output_bb_format='xyxy', goal_filtering=None, easyocr_args={'paragraph': False, 'text_threshold':0.9})
+    text, ocr_bbox = ocr_bbox_rslt
+
+    dino_labled_img, label_coordinates, parsed_content_list = get_som_labeled_img(image_path, som_model, BOX_TRESHOLD = BOX_TRESHOLD, output_coord_in_ratio=False, ocr_bbox=ocr_bbox,draw_bbox_config=draw_bbox_config, caption_model_processor=caption_model_processor, ocr_text=text,use_local_semantics=True, iou_threshold=0.1)
+
+    print(parsed_content_list)#[0].split(': ')[1]

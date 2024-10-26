@@ -1,0 +1,145 @@
+:root {
+	--spacing: 20px;
+	--light-blue: #4c8df1;
+	--light-red: #e87d77;
+	--light-yellow: #fbe6a6;
+	--background-color: #f7f6f4;
+	--text-color: #333;
+	--status-width: 100px;
+	--status-border: 5px;
+	--banner-height: 90px;
+}
+
+* {
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+}
+
+body {
+	display: flex;
+	flex-flow: column;
+
+	width: clamp(300px, 50vw, 500px);
+	aspect-ratio: 9/16;
+	border: 20px;
+
+	color: var(--text-color);
+	background-color: var(--background-color);
+	text-align: center;
+	font-family: "Poppins", sans-serif;
+}
+
+a {
+	color: #888;
+	text-decoration: none;
+	font-weight: 600;
+}
+
+.banner {
+	display: flex;
+	align-items: end;
+	justify-content: center;
+
+	height: var(--banner-height);
+	width: 100%;
+
+	background: var(-light-yellow);
+	background: linear-gradient(70deg, var(--light-yellow) 0%, var(--light-red) 59%, var(--light-blue) 100%);
+	margin-bottom: calc(var(--status-width) / 2);
+
+	.logo {
+		position: absolute;
+		top: calc(var(--spacing) / 2);
+		right: calc(var(--spacing) / 2);
+	}
+
+	img {
+		width: 30px;
+		aspect-ratio: 1;
+		border-radius: 5px;
+		background-color: transparent;
+		box-shadow: 2px 2px 5px #888;
+	}
+
+	.status {
+		position: relative;
+		top: calc(var(--status-width) / 2);
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		width: var(--status-width);
+		aspect-ratio: 1;
+		border-radius: 50%;
+		border: var(--status-border) solid var(--background-color);
+
+		box-shadow: 5px 5px 20px #0003;
+
+		&::before {
+			color: var(--background-color);
+			font-size: 40px;
+			font-weight: 600;
+			text-shadow: 1px 1px 5px black;
+		}
+	}
+}
+
+.unsure {
+	.status {
+		background: linear-gradient(45deg, var(--background-color) 0%, grey 60%);
+	}
+
+	.status::before {
+		content: "-";
+	}
+}
+
+.safe {
+	.status {
+		background: linear-gradient(45deg, var(--background-color) 0%, var(--light-blue) 60%);
+	}
+
+	.status::before {
+		content: "✔";
+	}
+}
+
+.unsafe {
+	.status {
+		background: linear-gradient(45deg, var(--background-color) 0%, var(--light-red) 60%);
+	}
+
+	.status::before {
+		content: "✚";
+		transform: rotate(45deg);
+	}
+}
+
+.security-body,
+footer {
+	padding: var(--spacing);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.security-body {
+	justify-content: start;
+	flex: 1;
+	gap: var(--spacing);
+	font-size: 14px;
+
+	text-align: center;
+
+	.current-page {
+		backdrop-filter: blur(5px);
+		background-color: #eee;
+		padding: var(--spacing) calc(var(--spacing) * 2);
+		border-radius: 40px;
+
+		font-weight: 600;
+		font-size: 14px;
+	}
+}
