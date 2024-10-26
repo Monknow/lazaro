@@ -7,8 +7,8 @@ function setDangerous(reason) {
 	z-index: 99999;
 	top: 0px; 
 	left: 0px; 
-	width: calc(-100px + 100vw); 
-	padding: 40px 80px 40px 40px;
+	width: 100vw; 
+	padding: 40px;
 	text-align: center;
 	background: linear-gradient(70deg, #e84e46 0%, #e87d77 100%); 
 	color: white;
@@ -20,7 +20,6 @@ function setDangerous(reason) {
 	document.body.appendChild(warning);
 	
 }
-
 
 
 function waitGetPage() {

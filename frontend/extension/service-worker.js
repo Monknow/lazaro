@@ -42,9 +42,10 @@ function parseSecurityStatusString(input) {
 }
 
 
-async function postImageToServer(imageFile) {
+async function postImageToServer(imageFile, origin) {
 	const formData = new FormData();
 	formData.append("file", imageFile);
+	formData.append("origin", origin);
 
 	try {
 		const response = await fetch("http://127.0.0.1:8000/upload/", {
@@ -72,7 +73,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 		const dataurl = message.dataurl;
 		const imageFile = base64ToFile(dataurl, "user.png");
 
-		postImageToServer(imageFile)
+		postImageToServer(imageFile, sender.origin)
 			.then((result) => {
 				sendResponse({success: true, result});
 			})

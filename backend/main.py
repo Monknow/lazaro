@@ -1,19 +1,19 @@
 from utils import get_som_labeled_img, check_ocr_box, get_caption_model_processor, get_yolo_model
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from PIL import Image
-from openai import OpenAI, AsyncOpenAI
+from openai import OpenAI
 from  ultralytics import YOLO
 import io
-import sys
-import os
 import torch
 import base64
 import matplotlib.pyplot as plt
 
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY","")
+
+
+OPENAI_API_KEY = "ENTER_YOUR_OPEN_AI_KEY"
 
 OpenAI.api_key = OPENAI_API_KEY
 
@@ -33,7 +33,7 @@ app.add_middleware(
 
 @app.post("/upload/")
 
-async def upload(file: UploadFile = File(...)):
+async def upload(file: UploadFile = File(...), origin:str = Form(...)):
     # Read the image file
     image_data = await file.read()
     
@@ -50,7 +50,7 @@ async def upload(file: UploadFile = File(...)):
 
     content = await screen_parse(img_path)
     content_string = " ".join(content)
-    instructions = "The following text is a deconstruction of a UI by an user. Your job is to decide from the interface if the user is in a malicious site or is at risk of sharing critical informaiton. Be wary of conversations asking for persnal info, such as passwords or other personal data. Be wary of pages selling videogame hacks or pirating media. You answer will be strictly in a JSON format with two properties. securityStatus that can be three possible outputs: safe, unsafe or unsure. And a reason property explaning the why. Write your result in Spanish" + content_string
+    instructions = "The following text is a deconstruction of a UI by an user. Your job is to decide from the interface if the user is in a malicious site or is at risk of sharing critical informaiton. The URL is" + origin + "so use it to check if it's pishing website. If you find a conversation (in email or a chatting app) check if the sender is requesting personal data and warn the user if so. Be wary of conversations asking for persnal info, such as passwords or other personal data. Be wary of pages selling videogame hacks or pirating media. You answer will be strictly in a JSON format with two properties. securityStatus that can be three possible outputs: safe, unsafe or unsure. And a reason property explaning the why. Write your result in Spanish except for the json" + content_string
     print("Parsed Successfully")
 
     # ChatGPT prompting

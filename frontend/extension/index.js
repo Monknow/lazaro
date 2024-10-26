@@ -1,8 +1,3 @@
-const initialSecurityStatus = localStorage.getItem("security")
-const initialReason = localStorage.getItem("reason")
-
-safetyUpdate({ securityStatus: initialSecurityStatus, reason: initialReason })
-
 function safetyUpdate(result) {
 	document.body.className = "";
 	document.body.classList.add(result.securityStatus);
@@ -10,10 +5,6 @@ function safetyUpdate(result) {
 
 	const recommendation = document.querySelector(".recommendation");
 	recommendation.innerHTML = result.reason;
-
-
-	localStorage.setItem("security", result.securityStatus)
-	localStorage.setItem("reason", result.reason)
 }
 
 // Function to update the current page's URL in the HTML element with class "current-page"
@@ -23,7 +14,7 @@ function updateCurrentPage(url) {
 		const origin = new URL(url).origin;
 
 		currentPageElement.textContent = `${origin}`;
-		safetyUpdate({ securityStatus: "loading", reason: "Nos encontramos verificando la seguridad de la pagina. Si tarda mucho, refresque la página" })
+		safetyUpdate({ securityStatus: "loading", reason: "Nos encontramos verificando la seguridad de la pagina" })
 	}
 }
 
@@ -58,7 +49,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	if (request.type === 'analysis') {
-		safetyUpdate(request.result, sender.origin)
+		safetyUpdate(request.result, sender.origin);
 	}
 });
 
