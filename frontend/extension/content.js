@@ -1,29 +1,27 @@
-async function setDangerous() {
-	await chrome.runtime.sendMessage({greeting: "body", bodyString: document.documentElement.outerHTML});
-	const analysis = await chrome.runtime.sendMessage({greeting: "analysis"});
+function setDangerous(reason) {
+	const warning = document.createElement("h1");
 
-	if (analysis !== "safe") {
-		const warning = document.createElement("h1");
+	warning.innerHTML = reason;
+	warning.style = `
+	position: fixed; 
+	z-index: 99999;
+	top: 0px; 
+	left: 0px; 
+	width: calc(-100px + 100vw); 
+	padding: 40px 80px 40px 40px;
+	text-align: center;
+	background: linear-gradient(70deg, #e84e46 0%, #e87d77 100%); 
+	color: white;
+	font-size: 16px;
+	font-weight: 600;
+	font-family: sans-serif;
+	`;
 
-		warning.innerHTML = "Este es un sitio sospechoso. Le recomendamos cerrar el sitio";
-		warning.style = `
-        position: fixed; 
-        z-index: 99999;
-        top: 0px; 
-        left: 0px; 
-        width: 100vw; 
-        padding: 20px;
-        text-align: center;
-        background-color: red; 
-        color: white;
-        font-size: 16px;
-        font-weight: 600;
-        font-family: sans-serif;
-        `;
-
-		document.body.appendChild(warning);
-	}
+	document.body.appendChild(warning);
+	
 }
+
+
 
 function waitGetPage() {
 	return new Promise((resolve) => {
@@ -38,7 +36,7 @@ function waitGetPage() {
 async function getPageContent() {
 	const dataurl = await waitGetPage();
 
-	const img = document.createElement("img");
+/* 	const img = document.createElement("img");
 	img.src = dataurl;
 	img.style.position = "fixed";
 	img.style.top = "10px";
@@ -47,18 +45,22 @@ async function getPageContent() {
 	img.style.zIndex = 10000;
 	img.style.width = "200px";
 	img.style.height = "auto";
-	document.body.appendChild(img);
+	document.body.appendChild(img); */
 
 	return dataurl;
 }
 
+
+
 async function sendToServer(dataurl) {
 	chrome.runtime.sendMessage({type: "upload-image", dataurl: dataurl}, (response) => {
-		if (response.success) {
-			console.log("Image uploaded successfully:", response.result);
-		} else {
-			console.error("Error uploading image:", response.error);
-		}
+		chrome.runtime.sendMessage({ type: "analysis", result: response.result });
+
+		if (response.result.securityStatus === "unsafe") {
+			setDangerous(response.result.reason)
+		} 
+
+		console.log(response.result)
 	});
 }
 
@@ -67,5 +69,9 @@ async function main() {
 	await sendToServer(dataurl);
 }
 
-main();
-setInterval(main, 5 * 1000);
+// Gives time to page to load
+setTimeout(main, 1000);
+
+// Run on back/forward navigation
+window.addEventListener('popstate', main);
+

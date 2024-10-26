@@ -7,21 +7,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 	}
 });
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-	if (message.greeting == "body") {
-		const tempContainer = chrome.createElement("div");
-		tempContainer.innerHTML = message.bodyString;
-		const element = tempContainer.firstChild;
-
-		console.log(element);
-	}
-
-	if (message.greeting === "analysis") {
-		sendResponse("safe");
-
-		return true;
-	}
-});
 
 function base64ToFile(base64String, fileName) {
 	// Split the base64 string into content type and base64 data parts
@@ -42,8 +27,22 @@ function base64ToFile(base64String, fileName) {
 	return new File([byteNumbers], fileName, {type: mimeType});
 }
 
+function parseSecurityStatusString(input) {
+    // Remove any extra characters (like backticks and newlines)
+    const cleanedInput = input.replace(/```json|```|\\n/g, '').trim();
+    
+    try {
+        // Parse the cleaned input into a JavaScript object
+        const parsedObject = JSON.parse(cleanedInput);
+        return parsedObject;
+    } catch (error) {
+        console.error("Failed to parse JSON:", error);
+        return null;
+    }
+}
+
+
 async function postImageToServer(imageFile) {
-	console.log(imageFile);
 	const formData = new FormData();
 	formData.append("file", imageFile);
 
@@ -58,8 +57,11 @@ async function postImageToServer(imageFile) {
 		}
 
 		const result = await response.json();
-		console.log("Image upload successful:", result);
-		return result;
+		const parsedResult = parseSecurityStatusString(result)
+
+		
+		console.log("Image upload successful:", {parsedResult});
+		return parsedResult;
 	} catch (error) {
 		console.error("Error uploading image:", error);
 	}

@@ -11,15 +11,16 @@ import os
 import torch
 import base64
 import matplotlib.pyplot as plt
-import json
 
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY","")
 
 OpenAI.api_key = OPENAI_API_KEY
 
+print(OPENAI_API_KEY)
+
 app = FastAPI()
-client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 app.add_middleware(
     CORSMiddleware,
@@ -37,89 +38,47 @@ async def upload(file: UploadFile = File(...)):
     image_data = await file.read()
     
     # Process the image using Pillow
-    try:
-        image = Image.open(io.BytesIO(image_data))
 
-        img_path = "test.png"
+    image = Image.open(io.BytesIO(image_data))
 
-        image.save(img_path)
+    img_path = "test.png"
+    base64_image = base64.b64encode(image_data).decode('utf-8')
 
-        print("Parsing")
+    image.save(img_path)
 
-        content = await screen_parse(img_path)
+    print("Parsing")
 
-        print("Parsed Successfully")
+    content = await screen_parse(img_path)
+    content_string = " ".join(content)
+    instructions = "The following text is a deconstruction of a UI by an user. Your job is to decide from the interface if the user is in a malicious site or is at risk of sharing critical informaiton. Be wary of conversations asking for persnal info, such as passwords or other personal data. Be wary of pages selling videogame hacks or pirating media. You answer will be strictly in a JSON format with two properties. securityStatus that can be three possible outputs: safe, unsafe or unsure. And a reason property explaning the why. Write your result in Spanish" + content_string
+    print("Parsed Successfully")
 
-        print(content)
+    # ChatGPT prompting
 
-        # return JSONResponse(content=content, status_code=200)
-
-        # ChatGPT prompting
-
-        response = await client.chat.completions.create(
-        model="gpt-3.5-turbo",
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
         messages=[
             {
-                "role": "system",
-                "content": (
-                    "You are a helpful assistant, skilled in explaining "
-                    "complex concepts in simple terms."
-                ),
-            },
-            {
                 "role": "user",
-                "content": f"{content} con esta lista hazme un analisis en porcentaje de que tan sospechosa es la pagina",
-            },
+                "content": [
+                    {"type": "text", "text": instructions},
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url":  f"data:image/jpeg;base64,{base64_image}"
+                        }
+                    },
+                ],
+            }
         ],
-        stream=True,
-        )
+        max_tokens=300,
+    )
 
-        '''aqui recibe una lista'''
+    reply_content = response.choices[0].message.content
+    print(reply_content)
 
-        try:
-            with open('Alerta.json', 'r') as f:
-                Alerta = json.load(f)
-        except FileNotFoundError:
-            Alerta = {}
+    return JSONResponse(content=reply_content, status_code=200)
 
-        lista = [0, 0, 0, 0, 0, 0, 0]
-        listaRazones = ["Tu conección al sitio no está encriptado", "Los enlaces dentro del sitio son inseguros", "Se muestra tu información personal", "Tu navegador te está dando alertas de seguridad", "El metodo de pago no esta encriptado", "Tu conección al internet no es privado", "La información que muestras actualmente no es privada"]
-        sospechatotal = 0
-
-        for i in range(len(lista)):
-            if lista[i] == 0:
-                sospechatotal+=1
-
-        if sospechatotal > 5:
-            Alerta['Gravedad'] = (f"Alerta de Seguridad; Actividad sospechosa\n")
-            temp = []
-            for i in range(sospechatotal):
-                if lista[i] == 0:
-                    temp.append(f"Razon {i+1}: {listaRazones[i]}\n")
-            Alerta['RazonAlerta'] = temp
-
-        elif sospechatotal < 6 and sospechatotal > 2:
-            Alerta['Gravedad'] = (f"Alerta de Seguridad; Actividad sospechosa\n")
-            temp = []
-            for i in range(sospechatotal):
-                if lista[i] == 0:
-                    temp.append(f"Razon {i+1}: {listaRazones[i]}\n")
-            Alerta['RazonAlerta'] = temp
-        elif sospechatotal < 3:
-            Alerta['Gravedad'] = (f"Actividad segura\n")
-
-        with open('Alerta.json', 'w') as f:
-            json.dump(Alerta, f, indent=2)
-        
-        #Ya no le entendi a los json
-
-        print(response)
-
-        return JSONResponse(content=response, status_code=200)
-    
-    except Exception as e:
-        print(e)
-        return JSONResponse(content={"error": str(e)}, status_code=500)
     
 
 async def screen_parse(img_path):
@@ -150,4 +109,5 @@ async def screen_parse(img_path):
 
     dino_labled_img, label_coordinates, parsed_content_list = get_som_labeled_img(image_path, som_model, BOX_TRESHOLD = BOX_TRESHOLD, output_coord_in_ratio=False, ocr_bbox=ocr_bbox,draw_bbox_config=draw_bbox_config, caption_model_processor=caption_model_processor, ocr_text=text,use_local_semantics=True, iou_threshold=0.1)
 
-    print(parsed_content_list)#[0].split(': ')[1]
+    print(parsed_content_list)
+    return parsed_content_list

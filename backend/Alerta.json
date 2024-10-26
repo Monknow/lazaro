@@ -1,0 +1,12 @@
+{
+  "Gravedad": "Alerta de Seguridad; Actividad sospechosa\n",
+  "RazonAlerta": [
+    "Razon 1: Tu conecci\u00f3n al sitio no est\u00e1 encriptado\n",
+    "Razon 2: Los enlaces dentro del sitio son inseguros\n",
+    "Razon 3: Se muestra tu informaci\u00f3n personal\n",
+    "Razon 4: Tu navegador te est\u00e1 dando alertas de seguridad\n",
+    "Razon 5: El metodo de pago no esta encriptado\n",
+    "Razon 6: Tu conecci\u00f3n al internet no es privado\n",
+    "Razon 7: La informaci\u00f3n que muestras actualmente no es privada\n"
+  ]
+}

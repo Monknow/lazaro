@@ -1,28 +1,20 @@
-let securityStatus = "unsafe";
+const initialSecurityStatus = localStorage.getItem("security")
+const initialReason = localStorage.getItem("reason")
 
-function safetyUpdate() {
-	document.body.classList.add(securityStatus);
+safetyUpdate({ securityStatus: initialSecurityStatus, reason: initialReason })
+
+function safetyUpdate(result) {
+	document.body.className = "";
+	document.body.classList.add(result.securityStatus);
+
 
 	const recommendation = document.querySelector(".recommendation");
-	const safeRecommendation = "Parece ser <strong>segura</strong>. Puede seguir navegando";
-	const unsafeRecommendation =
-		"La página es <strong>insegura</strong>. No se preocupe, tome una de las siguientes opciones";
-	const unsureRecommendation = "No pudimos determinar la seguridad del sitio. Continue con discreción";
+	recommendation.innerHTML = result.reason;
 
-	switch (securityStatus) {
-		case "unsafe":
-			recommendation.innerHTML = unsafeRecommendation;
-			break;
-		case "safe":
-			recommendation.innerHTML = safeRecommendation;
-			break;
-		case "unsure":
-			recommendation.innerHTML = unsureRecommendation;
-			break;
-	}
+
+	localStorage.setItem("security", result.securityStatus)
+	localStorage.setItem("reason", result.reason)
 }
-
-safetyUpdate();
 
 // Function to update the current page's URL in the HTML element with class "current-page"
 function updateCurrentPage(url) {
@@ -31,6 +23,7 @@ function updateCurrentPage(url) {
 		const origin = new URL(url).origin;
 
 		currentPageElement.textContent = `${origin}`;
+		safetyUpdate({ securityStatus: "loading", reason: "Nos encontramos verificando la seguridad de la pagina. Si tarda mucho, refresque la página" })
 	}
 }
 
@@ -57,8 +50,15 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 });
 
 // Initial call to update the page URL when the popup opens
-chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 	if (tabs.length > 0) {
 		updateCurrentPage(tabs[0].url);
 	}
 });
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+	if (request.type === 'analysis') {
+		safetyUpdate(request.result, sender.origin)
+	}
+});
+

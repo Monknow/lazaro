@@ -6,3 +6,4 @@ weights/icon_caption_florence
 __pycache__
 cuda*.exe
 cuda_12.6.2_560.94_windows.exe
+test.png
