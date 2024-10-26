@@ -1,0 +1,35 @@
+---
+import {Image} from "astro:assets";
+import logo from "../assets/images/logo.png";
+---
+
+<nav class="navbar">
+	<a class="logo" href="">
+		<Image src={logo} alt="Lazaro Icon" />
+		<span>Lazaro</span>
+	</a>
+</nav>
+
+<style>
+	.navbar {
+		display: flex;
+		align-items: center;
+
+		background-color: var(--background-color);
+
+		.logo {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		span {
+			font-size: 24px;
+		}
+
+		img {
+			height: 40px;
+			width: 40px;
+		}
+	}
+</style>

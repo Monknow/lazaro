@@ -1,0 +1,164 @@
+---
+import NavBar from "../components/NavBar.astro";
+import {Image} from "astro:assets";
+
+import "../assets/fonts/style.css";
+import verticalWave from "../assets/svg/vertical-wave.svg?raw";
+import appPhoto from "../assets/images/app-photo.png";
+---
+
+<main>
+	<div class="content">
+		<NavBar />
+		<header>
+			<h1>No le temas a navegar en Internet</h1>
+			<h2>Instala Lazaro en segundos y navega sin miedos</h2>
+			<button>Empieza ya ✨</button>
+		</header>
+	</div>
+
+	<div class="banner">
+		<Fragment set:html={verticalWave} />
+		<Image src={appPhoto} alt="Extension Example" />
+	</div>
+</main>
+
+<style>
+	@property --waveCoverage {
+		syntax: "<percentage>";
+		initial-value: 60%;
+		inherits: false;
+	}
+
+	@property --exampleOpacity {
+		syntax: "<percentage>";
+		initial-value: 100%;
+		inherits: false;
+	}
+
+	@property --gradientDirection {
+		syntax: "<angle>";
+		initial-value: 0deg;
+		inherits: false;
+	}
+
+	@keyframes wave-cover {
+		to {
+			--waveCoverage: 30%;
+			--exampleOpacity: 0%;
+			--gradientDirection: 90deg;
+		}
+	}
+
+	main {
+		display: flex;
+
+		.content {
+			flex: 2 1 50%;
+			display: flex;
+			flex-direction: column;
+
+			padding: var(--spacing);
+		}
+
+		header {
+			flex: 1;
+
+			display: flex;
+			flex-flow: column;
+			align-items: start;
+			justify-content: center;
+			gap: var(--spacing);
+			padding: 4rem 0rem 4rem 4rem;
+
+			& > * {
+				max-width: min(500px, 100vw);
+			}
+
+			h1 {
+				font-size: 4rem;
+				background: linear-gradient(
+					var(--gradientDirection),
+					var(--light-yellow) 0%,
+					var(--light-red) 30%,
+					var(--light-blue) 100%
+				);
+				background-clip: text;
+				color: transparent;
+				margin: calc(var(--spacing) * -1) 0px;
+
+				animation: wave-cover linear;
+				animation-timeline: scroll();
+			}
+
+			h2 {
+				font-size: 1.3rem;
+			}
+		}
+
+		.banner {
+			container-type: inline-size;
+			container-name: --banner;
+			flex: 1 1 var(--waveCoverage);
+
+			display: grid;
+			grid-template-columns: 100px 1fr;
+			grid-template-rows: 1fr;
+			grid-template-areas: "waves example";
+
+			padding-left: var(--spacing);
+			height: var(--banner-height);
+
+			--dot-bg: white;
+			--dot-color: #0003;
+			--dot-size: 3px;
+			--dot-space: 22px;
+
+			background: var(--light-yellow);
+			background:
+				linear-gradient(
+					70deg,
+					var(--light-yellow-transparent) 30%,
+					var(--light-red-transparent) 59%,
+					var(--light-blue-transparent) 100%
+				),
+				linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center /
+					var(--dot-space) var(--dot-space),
+				linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center /
+					var(--dot-space) var(--dot-space),
+				var(--dot-color);
+
+			animation: wave-cover linear;
+			animation-timeline: scroll();
+
+			svg {
+				grid-area: waves;
+				justify-self: center;
+
+				height: var(--banner-height);
+			}
+
+			img {
+				grid-area: example;
+				align-self: center;
+				justify-self: center;
+
+				width: calc(clamp(10px, 3vw, 40px) * 9);
+				height: calc(clamp(10px, 3vw, 40px) * 16);
+				border-radius: 30px;
+				border: 5px solid #3334;
+				box-shadow: 5px 5px 20px #0003;
+				opacity: var(--exampleOpacity);
+
+				animation: wave-cover linear;
+				animation-timeline: scroll();
+			}
+		}
+	}
+
+	@container --banner (width < 500px) {
+		img {
+			display: none;
+		}
+	}
+</style>

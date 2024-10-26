@@ -1,0 +1,79 @@
+---
+interface Props {
+	title: string;
+}
+
+const {title} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="description" content="Astro description" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+		<link rel="manifest" href="/site.webmanifest" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+	</head>
+	<body>
+		<slot />
+	</body>
+</html>
+
+<style is:global>
+	:root {
+		--spacing: clamp(15px, 5vw, 30px);
+		--light-blue: #4c8df1;
+		--light-red: #e87d77;
+		--light-yellow: #fbe6a6;
+		--light-blue-transparent: #4c8df1aa;
+		--light-red-transparent: #e87d77aa;
+		--light-yellow-transparent: #fbe6a6aa;
+		--background-color: #f7f6f4;
+		--text-color: #333;
+		--banner-height: 100vh;
+	}
+
+	* {
+		padding: 0;
+		margin: 0;
+		box-sizing: border-box;
+	}
+
+	html {
+		font-size: clamp(12px, 2vw, 18px);
+		scrollbar-width: thin;
+	}
+
+	body {
+		color: var(--text-color);
+		background-color: var(--background-color);
+		font-family: "Poppins", sans-serif;
+	}
+
+	a {
+		text-decoration: none;
+		color: var(--text-color);
+		font-weight: 600;
+	}
+
+	button {
+		all: unset;
+
+		border-radius: 30px;
+		padding: 10px 20px;
+		box-shadow: 0px 3px 5px #000;
+
+		cursor: pointer;
+
+		transition: transform 50ms ease;
+
+		&:hover {
+			transform: scale(1.02);
+		}
+	}
+</style>

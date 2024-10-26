@@ -67,6 +67,5 @@ async function main() {
 	await sendToServer(dataurl);
 }
 
-main();
-
-// setInterval(getPageContent, 5 * 1000);
+// main();
+// setInterval(main, 5 * 1000);

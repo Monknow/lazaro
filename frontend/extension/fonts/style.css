@@ -1,0 +1,15 @@
+@font-face {
+	font-family: "Montserrat";
+	src: url("./Montserrat-VariableFont_wght.ttf") format("opentype");
+	font-weight: 100 900; /* Range from thin (100) to black (900) */
+	font-stretch: 75% 100%; /* Adjust as needed, usually 75% to 100% */
+	font-display: swap; /* Fallback to other fonts while loading */
+}
+
+@font-face {
+	font-family: "Poppins";
+	src: url("./Poppins-VariableFont_wght.otf") format("opentype");
+	font-weight: 100 900; /* Range from thin (100) to black (900) */
+	font-stretch: 75% 100%; /* Adjust as needed, usually 75% to 100% */
+	font-display: swap; /* Fallback to other fonts while loading */
+}
