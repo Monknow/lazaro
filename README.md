@@ -31,7 +31,7 @@ Lázaro utiliza un sistema de logs para registrar eventos importantes durante su
 
 1. *Clona el Repositorio*:
 
-    bash
+   ```bash
     git clone https://github.com/Monknow/lazaro.git
     
 
@@ -39,14 +39,14 @@ Lázaro utiliza un sistema de logs para registrar eventos importantes durante su
 
     Abre una terminal en la raíz del proyecto y ejecuta los siguientes comandos para crear y activar un entorno llamado omniparser:
 
-    bash
+    ```bash
     conda create -n "omniparser" python=3.12 -y
     conda activate omniparser
     
 
 3. *Instala las Dependencias (Dentro del CommandPromnt de AnacondaNavigator)*:
 
-    bash
+    ```bash
     pip install -r requirements.txt
     conda install pytorch torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia
     
@@ -55,7 +55,7 @@ Lázaro utiliza un sistema de logs para registrar eventos importantes durante su
 
     Navega al directorio backend e inicia el servidor:
 
-    bash
+    ```bash
     cd backend
     python -m uvicorn main:app --reload
     
