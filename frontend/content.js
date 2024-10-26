@@ -25,41 +25,46 @@ async function setDangerous() {
 	}
 }
 
-function getPageContent() {
-	chrome.runtime.sendMessage({action: "takeScreenshot"}, (response) => {
-		if (response && response.screenshot) {
-			const img = document.createElement("img");
-			img.src = response.screenshot;
-			img.style.position = "fixed";
-			img.style.top = "10px";
-			img.style.left = "10px";
-			img.style.border = "2px solid #000";
-			img.style.zIndex = 10000;
-			img.style.width = "200px";
-			img.style.height = "auto";
-			document.body.appendChild(img);
+function waitGetPage() {
+	return new Promise((resolve) => {
+		chrome.runtime.sendMessage({action: "takeScreenshot"}, (response) => {
+			if (response && response.screenshot) {
+				resolve(response.screenshot);
+			}
+		});
+	});
+}
 
-			return response.screenshot;
+async function getPageContent() {
+	const dataurl = await waitGetPage();
+
+	const img = document.createElement("img");
+	img.src = dataurl;
+	img.style.position = "fixed";
+	img.style.top = "10px";
+	img.style.left = "10px";
+	img.style.border = "2px solid #000";
+	img.style.zIndex = 10000;
+	img.style.width = "200px";
+	img.style.height = "auto";
+	document.body.appendChild(img);
+
+	return dataurl;
+}
+
+async function sendToServer(dataurl) {
+	chrome.runtime.sendMessage({type: "upload-image", dataurl: dataurl}, (response) => {
+		if (response.success) {
+			console.log("Image uploaded successfully:", response.result);
+		} else {
+			console.error("Error uploading image:", response.error);
 		}
 	});
 }
 
-async function sendToServer(image) {
-	const formData = new FormData();
-	formData.append("file", image);
-
-	const response = await fetch("http://127.0.0.1:8000/upload/", {
-		mode: "no-cors",
-		method: "POST",
-		body: formData,
-	});
-
-	console.log(response);
-}
-
 async function main() {
-	const image = getPageContent();
-	await sendToServer(image);
+	const dataurl = await getPageContent();
+	await sendToServer(dataurl);
 }
 
 main();

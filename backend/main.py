@@ -30,9 +30,7 @@ async def upload_image(file: UploadFile = File(...)):
     try:
         image = Image.open(io.BytesIO(image_data))
         
-        # Example processing: Convert the image to grayscale
-        processed_image = image.convert("L")
-        processed_image.save("test.png")
+        image.save("test.png")
 
         return JSONResponse(content={"message": "Image processed successfully!"})
     
