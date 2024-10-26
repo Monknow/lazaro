@@ -38,10 +38,29 @@ function getPageContent() {
 			img.style.width = "200px";
 			img.style.height = "auto";
 			document.body.appendChild(img);
+
+			return response.screenshot;
 		}
 	});
 }
 
-setInterval(getPageContent, 5 * 1000);
+async function sendToServer(image) {
+	const formData = new FormData();
+	formData.append("file", image);
 
-// setDangerous();
+	const response = await fetch("http://127.0.0.1:8000/upload/", {
+		method: "POST",
+		body: formData,
+	});
+
+	console.log(response);
+}
+
+async function main() {
+	const image = getPageContent();
+	await sendToServer(image);
+}
+
+main();
+
+// setInterval(getPageContent, 5 * 1000);
